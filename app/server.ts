@@ -14,6 +14,7 @@ import errors from "./utils/errors";
 import logger, { LoggerStream } from "./utils/logger";
 
 import adminRouter from "./api/api/v1/routes/admin";
+import todoRouter from "./api/api/v1/routes/todo";
 
 const corsOptions = {
   origin(origin: any, callback: any) {
@@ -37,6 +38,7 @@ app.use(bodyParser.urlencoded({ limit: POST_LIMIT, extended: true }));
 app.use(cors(corsOptions));
 
 app.use(`/api/v1/admin`, adminRouter);
+app.use(`/api/v1/todo`, todoRouter);
 
 app.get(`/status`, (_, res) => {
   return res.send({
