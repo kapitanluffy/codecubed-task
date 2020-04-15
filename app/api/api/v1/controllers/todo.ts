@@ -38,13 +38,12 @@ const getById = async (req: Request, res: Response, next: NextFunction) => {
 
 const listTodos = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    let { page } = req.query;
+    let { page, complete } = req.query;
 
-    if (!page) {
-      page = 1
-    }
+    if (!page) page = 1
+    if (!complete) complete = false
 
-    const _list = await Todo.getTodos(parseInt(page));
+    const _list = await Todo.getTodos(parseInt(page), complete);
     return res.send({ data: _list });
   } catch (err) {
     logger.error("Error: ", err);

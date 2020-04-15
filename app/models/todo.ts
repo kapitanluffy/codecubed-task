@@ -29,16 +29,19 @@ const getTodoById = async (id: string) => {
   }
 };
 
-const getTodos = async (page: number) => {
+const getTodos = async (page: number, complete?: boolean) => {
   try {
     // @ts-ignore
     // TODO: add createdAt field and sort properly.
     const { docs, total, limit, page: pageNum, pages } = await Todo.paginate(
-      {},
+      {
+        isComplete: complete
+      },
       {
         page,
         limit: PAGINATION_LIMIT,
         lean: true,
+        sort: { createdAt: -1 },
       },
     );
     return { todos: docs, total, limit, page: pageNum, pages };

@@ -1,7 +1,6 @@
 import fetch from 'node-fetch'
 import React from 'react'
 import Todo from '../components/todo'
-import List from '../components/list'
 
 export interface ITodo {
   _id?: any;
@@ -10,11 +9,8 @@ export interface ITodo {
 }
 
 export interface IProps {
-  todos: Array<ITodo>,
-  total: Number,
-  limit: Number,
-  page: Number,
-  pages: Number
+  items: { page?: Number, pages?: Number, todos?: Array<ITodo> },
+  complete?: Boolean
 }
 
 export interface IState {
@@ -22,14 +18,15 @@ export interface IState {
   itemList: Array<ITodo>
 }
 
-class Board extends React.Component<IProps, IState> {
+class List extends React.Component<IProps, IState> {
+
   constructor(props) {
-    super(props);
+    super(props)
+    console.log(props)
     this.state = {
       newItem: { details: "", isComplete: false },
-      itemList: props.todos
+      itemList: props.items.todos
     }
-    console.log(props)
   }
 
   handleChange = e => {
@@ -38,7 +35,7 @@ class Board extends React.Component<IProps, IState> {
 
   handleSubmit = e => {
     e.preventDefault();
-    fetch('http://localhost:5000/api/v1/todo', {
+    fetch('http://192.168.0.15:5000/api/v1/todo', {
       method: 'post', body: JSON.stringify(this.state.newItem), headers: { 'Content-Type': 'application/json' }
     })
     .then(res => res.json())
@@ -60,12 +57,13 @@ class Board extends React.Component<IProps, IState> {
             return <li key={i}><a href={ "/todo/" + v._id }><Todo _id={v._id} details={v.details} isComplete={v.isComplete} /></a></li>
           })}
         </ul>
-        <div>
-          <span>Page: </span>
-          {Array.from(Array(this.props.pages), (v, i) => {
-            return <span key={i}><a href={ "/board?page=" + (i + 1) }>{ (i + 1) }</a></span>
+
+        <ul>
+          {Array.from(Array(this.props.items.pages), (v, i) => {
+            return <li key={i}><a href={ "/board?page=" + (i + 1) }>{ (i + 1) }</a></li>
           })}
-        </div>
+        </ul>
+
         <input type="text" value={this.state.newItem.details} onChange={this.handleChange} id="details" />
         <button type="submit" onClick={this.handleSubmit}>Add</button>
       </div>
@@ -73,11 +71,15 @@ class Board extends React.Component<IProps, IState> {
   }
 
   static async getInitialProps(ctx) {
-    const { page } = ctx.query
-    const res = await fetch('http://localhost:5000/api/v1/todo?page=' + page)
+    let { page, complete } = ctx.query
+
+    page = page || 1
+    complete = complete || false
+
+    const res = await fetch('http://192.168.0.15:5000/api/v1/todo?page=' + page + '&complete=' + complete)
     const items = await res.json()
-    return items.data
+    return { items: items.data }
   }
 
 }
-export default Board;
+export default List;
